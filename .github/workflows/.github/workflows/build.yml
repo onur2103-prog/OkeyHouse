@@ -1,0 +1,36 @@
+name: Build APK
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Zip'i aç
+        run: unzip -q OkeyHouse.zip
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Testleri çalıştır
+        working-directory: OkeyGame
+        run: gradle :app:testDebugUnitTest
+
+      - name: Debug APK derle
+        working-directory: OkeyGame
+        run: gradle :app:assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OkeyHouse-debug-apk
+          path: OkeyGame/app/build/outputs/apk/debug/app-debug.apk
